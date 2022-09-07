@@ -24,4 +24,6 @@ def main(HP):
 if __name__ == '__main__':
     HP = {'lr': 4e-4, 'Z_dim':1,}
 
+    plots.plot_video(save_video=True)
+
     main(HP)

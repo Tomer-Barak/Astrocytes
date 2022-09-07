@@ -3,9 +3,12 @@ import matplotlib.pyplot as plt
 import os
 import subprocess
 import glob
+import data
 
 
-def plot_video(bad_ROIs, df_F, events_above_min, include_frames, quad_data_norm, scaled_centroids, save_video=False):
+def plot_video(frames=1000, save_video=False):
+    bad_ROIs, df_F, events_above_min, include_frames, quad_data_norm, scaled_centroids = data.load_data()
+
     plt.ion()
 
     ax1 = plt.subplot(131)
@@ -27,7 +30,7 @@ def plot_video(bad_ROIs, df_F, events_above_min, include_frames, quad_data_norm,
     layer_0 = np.where(scaled_centroids[:, 2] == 0)[0]
     layer_1 = np.where(scaled_centroids[:, 2] == 1)[0]
 
-    for i in range(total_frames):
+    for i in range(frames):
         print('Frame: ' + str(i))
         active = np.where(events_above_min[i, :] == 1)[0]
         inactive = np.where(events_above_min[i, :] == 0)[0]

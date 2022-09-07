@@ -88,11 +88,13 @@ def plot_representations(xs, e_net, t_net, epoch, HP, sixth_image):
 
 def plot_average_anomaly():
 
-    plt.figure(figsize=(12, 4))
-    scores = np.load('results/anomaly_scores.npy')
-    mouse_positions = np.load('results/mouse_positions.npy')
+    hop = 20
 
-    scores_mean = np.mean(np.array(scores), axis=0)
+    plt.figure(figsize=(12, 4))
+    scores = np.load('results/anomaly_scores_hop'+str(hop)+'.npy')
+    mouse_positions = np.load('results/mouse_positions_hop'+str(hop)+'.npy')
+
+    scores_mean = np.nanmean(np.array(scores), axis=0)
     # scores = gaussian_filter1d(scores, 10)
 
     scores_sem = 1.96 * (st.sem(np.array(scores), axis=0))
@@ -106,14 +108,50 @@ def plot_average_anomaly():
 
     plt.ylabel('Anomaly score', fontsize=16)
     plt.yticks(fontsize=14)
-    plt.xlabel('Frame count (hop=20)', fontsize=16)
+    plt.xlabel('Frame count (hop='+str(hop)+')', fontsize=16)
     plt.xticks(fontsize=14)
     plt.legend()
     plt.tight_layout()
-    plt.savefig('Anomaly_scores_video_data.png', dpi=1000)
+    plt.savefig('Anomaly_scores_video_data_hop'+str(hop)+'.png', dpi=1000)
     plt.show()
 
 
+def plot_average_anomaly_polar():
+    fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
+
+    hop = 20
+
+    scores = np.load('results/anomaly_scores_hop'+str(hop)+'.npy')
+    mouse_positions = np.load('results/mouse_positions_hop'+str(hop)+'.npy')
+
+    scores_mean = np.mean(np.array(scores), axis=0)
+
+
+    ax.plot(mouse_positions, scores_mean)
+    ax.grid(True)
+    # ax.set_rmax(20)
+    # ax.set_rticks([0.5, 1, 1.5, 2])  # Less radial ticks
+    # ax.set_rlabel_position(-22.5)  # Move radial labels away from plotted line
+
+    # scores_sem = 1.96 * (st.sem(np.array(scores), axis=0))
+    #
+    # range_idx = range(len(scores_mean))
+    # plt.plot(scores_mean, color='b', label='score')
+    # plt.fill_between(range_idx, scores_mean - scores_sem,
+    #                  scores_mean + scores_sem, color='b', alpha=0.4)
+    #
+    # plt.plot(range_idx, mouse_positions, color='r', label='mouse angle')
+
+    # plt.ylabel('Anomaly score', fontsize=16)
+    # plt.yticks(fontsize=14)
+    # plt.xlabel('Frame count (hop=20)', fontsize=16)
+    # plt.xticks(fontsize=14)
+    # plt.legend()
+    plt.tight_layout()
+    plt.savefig('Anomaly_scores_video_data_polar_hop'+str(hop)+'.png', dpi=1000)
+    plt.show()
+
 if __name__ == '__main__':
     plot_average_anomaly()
+    # plot_average_anomaly_polar()
     # plot_video(200, save_video=False, hop=20)

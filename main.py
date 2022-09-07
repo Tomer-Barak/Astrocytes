@@ -52,7 +52,7 @@ def anomaly_detection(HP):
         #     anomaly_scores.append(5.0)
         # else:
         anomaly_scores.append((e_K_c - np.mean(e_i_ip)) / np.std(e_i_ip))
-        mouse_positions.append(mouse_position[i])
+        mouse_positions.append(mouse_position[i + HP['K']])
 
         # print(f"i={i}/{N}, Score={np.round(anomaly_scores[-1], 2)},"
         #       f" Time={np.round(time.time() - start, 2)}, e_K_c={np.round(e_K_c, 4)}, e_i_ip={np.round(np.mean(e_i_ip), 4)}")
@@ -64,19 +64,22 @@ def anomaly_detection(HP):
 
 
 def multiple_anomaly_tests():
-    HP = {'lr': 4e-4, 'Z_dim': 1, 'grid_size': 100, 'K': 5, 'hop': 20, 'RN': False, 'plot_representations': False,
-          'gather_errors': True, 'epochs': 1, 'optim': 'RMSprop', 'reset_nets': True, 'iterations': 20,
+    HP = {'lr': 4e-4, 'Z_dim': 1, 'grid_size': 100, 'K': 5, 'hop': 15, 'RN': False, 'plot_representations': False,
+          'gather_errors': True, 'epochs': 1, 'optim': 'RMSprop', 'reset_nets': True, 'iterations': 50,
           'vid_length': 200}
 
-    print(HP)
-    scores = []
-    for iteration in range(HP['iterations']):
-        time_start = time.time()
-        anomaly_scores, mouse_position = anomaly_detection(HP)
-        scores.append(anomaly_scores)
-        np.save('results/anomaly_scores.npy', scores)
-        np.save('results/mouse_positions.npy', mouse_position)
-        print(f'Iteration {iteration}, time={time.time()-time_start}')
+    hops = [5,10,15,20,25,30]
+    for hop in hops:
+        HP['hop'] = hop
+        print(HP)
+        scores = []
+        for iteration in range(HP['iterations']):
+            time_start = time.time()
+            anomaly_scores, mouse_position = anomaly_detection(HP)
+            scores.append(anomaly_scores)
+            np.save('results/anomaly_scores_hop'+str(HP['hop'])+'.npy', scores)
+            np.save('results/mouse_positions_hop'+str(HP['hop'])+'.npy', mouse_position)
+            print(f'Iteration {iteration}, time={time.time() - time_start}')
 
 
 if __name__ == '__main__':

@@ -1,4 +1,8 @@
 import scipy.io as sio
+import numpy as np
+import matplotlib.pyplot as plt
+import torch
+
 
 def load_data():
     bad_ROIs = sio.loadmat('Data/bad_ROIs.mat')['bad_ROIs']
@@ -16,3 +20,58 @@ def load_data():
     quad_data_norm = np.squeeze(quad_data_norm)[include_frames[0][0] - 1:include_frames[1][0] - 1]
 
     return bad_ROIs, df_F, events_above_min, include_frames, quad_data_norm, scaled_centroids
+
+
+def convert_data_to_video(HP):
+    bad_ROIs, df_F, events_above_min, include_frames, quad_data_norm, scaled_centroids = load_data()
+
+    total_frames = len(events_above_min)
+
+    min_x = np.min(scaled_centroids[:, 0])
+    min_y = np.min(scaled_centroids[:, 1])
+    max_x = np.max(scaled_centroids[:, 0])
+    max_y = np.max(scaled_centroids[:, 1])
+
+    scaled_centroids[:, 0] = np.rint((HP['grid_size'] - 1) * (scaled_centroids[:, 0] - min_x) / (max_x - min_x))
+    scaled_centroids[:, 1] = np.rint((HP['grid_size'] - 1) * (scaled_centroids[:, 1] - min_y) / (max_y - min_y))
+    scaled_centroids = scaled_centroids.astype(int)
+
+    video = np.zeros((total_frames, 2, HP['grid_size'], HP['grid_size']))
+
+    layer_0 = np.where(scaled_centroids[:, 2] == 0)[0]
+    layer_1 = np.where(scaled_centroids[:, 2] == 1)[0]
+
+    for i in range(total_frames):
+        active = np.where(events_above_min[i, :] == 1)[0]
+        inactive = np.where(events_above_min[i, :] == 0)[0]
+
+        x_active_layer0, y_active_layer0 = scaled_centroids[np.intersect1d(layer_0, active), 0], scaled_centroids[
+            np.intersect1d(layer_0, active), 1]
+
+        x_inactive_layer0, y_inactive_layer0 = scaled_centroids[np.intersect1d(layer_0, inactive), 0], scaled_centroids[
+            np.intersect1d(layer_0, inactive), 1]
+
+        x_active_layer1, y_active_layer1 = scaled_centroids[np.intersect1d(layer_1, active), 0], scaled_centroids[
+            np.intersect1d(layer_1, active), 1]
+
+        x_inactive_layer1, y_inactive_layer1 = scaled_centroids[np.intersect1d(layer_1, inactive), 0], scaled_centroids[
+            np.intersect1d(layer_1, inactive), 1]
+
+        video[i, 0, x_active_layer0, y_active_layer0] = 0.5
+        video[i, 1, x_active_layer1, y_active_layer1] = 0.5
+        video[i, 0, x_inactive_layer0, y_inactive_layer0] = -0.5
+        video[i, 1, x_inactive_layer1, y_inactive_layer1] = -0.5
+
+    return torch.from_numpy(video)
+
+
+def convert_data_to_features():
+    bad_ROIs, df_F, events_above_min, include_frames, quad_data_norm, scaled_centroids = load_data()
+
+
+if __name__ == '__main__':
+    HP = {'grid_size': 100}
+
+    # convert_data_to_features()
+    video = convert_data_to_video(HP)
+    pass

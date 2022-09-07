@@ -13,17 +13,12 @@ def create_nets(HP):
 
 
 def main(HP):
-    bad_ROIs, df_F, events_above_min, include_frames, quad_data_norm, scaled_centroids = data.load_data()
-
-    # plots.plot_video(bad_ROIs, df_F, events_above_min, include_frames, quad_data_norm, scaled_centroids,
-    #                  save_video=False)
+    video, mouse_position = data.generate_video_data(HP)
 
     z_net, t_net = create_nets(HP)
 
 
 if __name__ == '__main__':
-    HP = {'lr': 4e-4, 'Z_dim':1,}
-
-    plots.plot_video(save_video=True)
+    HP = {'lr': 4e-4, 'Z_dim':1, 'grid_size':100}
 
     main(HP)

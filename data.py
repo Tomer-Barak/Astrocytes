@@ -22,7 +22,7 @@ def load_data():
     return bad_ROIs, df_F, events_above_min, include_frames, quad_data_norm, scaled_centroids
 
 
-def convert_data_to_video(HP):
+def generate_video_data(HP):
     bad_ROIs, df_F, events_above_min, include_frames, quad_data_norm, scaled_centroids = load_data()
 
     total_frames = len(events_above_min)
@@ -62,16 +62,24 @@ def convert_data_to_video(HP):
         video[i, 0, x_inactive_layer0, y_inactive_layer0] = -0.5
         video[i, 1, x_inactive_layer1, y_inactive_layer1] = -0.5
 
-    return torch.from_numpy(video)
+    mouse_position = quad_data_norm * 2 * np.pi
+
+    return torch.from_numpy(video), torch.from_numpy(mouse_position)
 
 
-def convert_data_to_features():
-    bad_ROIs, df_F, events_above_min, include_frames, quad_data_norm, scaled_centroids = load_data()
+def generate_features_data(HP):
+    _, df_F, events_above_min, _, quad_data_norm, _ = load_data()
+
+    features = events_above_min
+
+    mouse_position = quad_data_norm * 2 * np.pi
+
+    return torch.from_numpy(features), torch.from_numpy(mouse_position)
 
 
 if __name__ == '__main__':
     HP = {'grid_size': 100}
+    # video = generate_video_data(HP)
 
-    # convert_data_to_features()
-    video = convert_data_to_video(HP)
+    features, mouse = generate_features_data(HP)
     pass

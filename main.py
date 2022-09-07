@@ -1,3 +1,7 @@
+import glob
+import os
+import subprocess
+
 import numpy as np
 import scipy.io as sio
 import matplotlib.pyplot as plt
@@ -23,7 +27,7 @@ def load_data():
 
 def plot_video(bad_ROIs, df_F, events_above_min, include_frames, quad_data_norm, scaled_centroids):
     plt.ion()
-    # fig, ax = plt.subplots(1, 3, figsize=(10, 5), sharex=True, sharey=True)
+
     ax1 = plt.subplot(131)
     ax2 = plt.subplot(132, projection='polar')
     ax3 = plt.subplot(133)
@@ -44,6 +48,7 @@ def plot_video(bad_ROIs, df_F, events_above_min, include_frames, quad_data_norm,
     layer_1 = np.where(scaled_centroids[:, 2] == 1)[0]
 
     for i in range(total_frames):
+        print('Frame: ' + str(i))
         active = np.where(events_above_min[i, :] == 1)[0]
         inactive = np.where(events_above_min[i, :] == 0)[0]
 
@@ -52,14 +57,14 @@ def plot_video(bad_ROIs, df_F, events_above_min, include_frames, quad_data_norm,
                     scaled_centroids[np.intersect1d(layer_0, active), 1], c='b', s=10)
         ax1.scatter(scaled_centroids[np.intersect1d(layer_0, inactive), 0],
                     scaled_centroids[np.intersect1d(layer_0, inactive), 1], c='r', s=10)
-        ax1.set_title(f'Activity ~ {np.round(100*len(np.intersect1d(layer_0, active))/len(layer_0),1)}%')
+        ax1.set_title(f'Activity ~ {np.round(100 * len(np.intersect1d(layer_0, active)) / len(layer_0), 1)}%')
 
         ax3.cla()
         ax3.scatter(scaled_centroids[np.intersect1d(layer_1, active), 0],
                     scaled_centroids[np.intersect1d(layer_1, active), 1], c='b', s=10)
         ax3.scatter(scaled_centroids[np.intersect1d(layer_1, inactive), 0],
                     scaled_centroids[np.intersect1d(layer_1, inactive), 1], c='r', s=10)
-        ax3.set_title(f'Activity ~ {np.round(100 * len(np.intersect1d(layer_1, active)) / len(layer_1),1)}%')
+        ax3.set_title(f'Activity ~ {np.round(100 * len(np.intersect1d(layer_1, active)) / len(layer_1), 1)}%')
 
         ax2.cla()
         ax2.set_yticklabels([])
@@ -68,6 +73,16 @@ def plot_video(bad_ROIs, df_F, events_above_min, include_frames, quad_data_norm,
         ax2.set_title(f'Frame: {i + 1}/{total_frames}')
 
         plt.pause(0.01)
+        # plt.savefig("animation/file%02d.png" % i)
+
+    # os.chdir("animation")
+    # subprocess.call([
+    #     'ffmpeg', '-framerate', '8', '-i', 'file%02d.png', '-r', '30', '-pix_fmt', 'yuv420p',
+    #     'video_name.mp4'
+    # ])
+    # for file_name in glob.glob("*.png"):
+    #     os.remove(file_name)
+
 
 
 if __name__ == '__main__':

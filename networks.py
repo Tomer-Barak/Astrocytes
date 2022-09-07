@@ -10,7 +10,7 @@ class old_Z(nn.Module):
 
     def __init__(self, HP):
         super(old_Z, self).__init__()
-        self.conv1 = nn.Conv2d(1, 16, 2, padding=1)
+        self.conv1 = nn.Conv2d(2, 16, 2, padding=1)
         self.conv2 = nn.Conv2d(16, 32, 2, padding=1)
         self.conv3 = nn.Conv2d(32, 32, 3, padding=1)
 
@@ -28,7 +28,7 @@ class old_Z(nn.Module):
         :param x: Image
         :return: The encoder value of the image
         """
-        x = x.view(-1, 1, 100, 100)
+        x = x.view(-1, 2, 100, 100)
 
         x = self.relu(self.conv1(x))
         x = F.max_pool2d(self.relu(self.conv2(x)), 2)
@@ -73,10 +73,4 @@ class T(nn.Module):
         x = torch.tanh(self.fc4(x))
         x = self.fc5(x) + x_in
 
-        if self.HP['GPU']:
-            ones = torch.ones(x.size()).to('cuda')
-        else:
-            ones = torch.ones(x.size())
-
-        # x = self.const(0.5*ones) + x_in
         return x

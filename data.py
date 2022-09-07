@@ -36,12 +36,14 @@ def generate_video_data(HP):
     scaled_centroids[:, 1] = np.rint((HP['grid_size'] - 1) * (scaled_centroids[:, 1] - min_y) / (max_y - min_y))
     scaled_centroids = scaled_centroids.astype(int)
 
-    video = np.zeros((total_frames, 2, HP['grid_size'], HP['grid_size']))
+    video = np.zeros((len(range(0, total_frames, HP['hop'])), 2, HP['grid_size'], HP['grid_size']))
+    mouse_position = np.zeros(len(range(0, total_frames, HP['hop'])))
 
     layer_0 = np.where(scaled_centroids[:, 2] == 0)[0]
     layer_1 = np.where(scaled_centroids[:, 2] == 1)[0]
 
-    for i in range(total_frames):
+    count = 0
+    for i in range(0, total_frames, HP['hop']):
         active = np.where(events_above_min[i, :] == 1)[0]
         inactive = np.where(events_above_min[i, :] == 0)[0]
 
@@ -57,12 +59,15 @@ def generate_video_data(HP):
         x_inactive_layer1, y_inactive_layer1 = scaled_centroids[np.intersect1d(layer_1, inactive), 0], scaled_centroids[
             np.intersect1d(layer_1, inactive), 1]
 
-        video[i, 0, x_active_layer0, y_active_layer0] = 0.5
-        video[i, 1, x_active_layer1, y_active_layer1] = 0.5
-        video[i, 0, x_inactive_layer0, y_inactive_layer0] = -0.5
-        video[i, 1, x_inactive_layer1, y_inactive_layer1] = -0.5
+        video[count, 0, x_active_layer0, y_active_layer0] = 0.5
+        video[count, 1, x_active_layer1, y_active_layer1] = 0.5
+        video[count, 0, x_inactive_layer0, y_inactive_layer0] = -0.5
+        video[count, 1, x_inactive_layer1, y_inactive_layer1] = -0.5
 
-    mouse_position = quad_data_norm * 2 * np.pi
+        mouse_position[count] = quad_data_norm[i] * 2 * np.pi
+
+        count += 1
+
 
     return torch.from_numpy(video), torch.from_numpy(mouse_position)
 
@@ -78,8 +83,12 @@ def generate_features_data(HP):
 
 
 if __name__ == '__main__':
-    HP = {'grid_size': 100}
-    # video = generate_video_data(HP)
+    HP = {'grid_size': 100, 'hop': 1}
+    video, _ = generate_video_data(HP)
+    print(len(video))
 
-    features, mouse = generate_features_data(HP)
-    pass
+    HP = {'grid_size': 100, 'hop': 2}
+    video, _ = generate_video_data(HP)
+    print(len(video))
+
+    # features, mouse = generate_features_data(HP)

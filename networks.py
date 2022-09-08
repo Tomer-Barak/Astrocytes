@@ -35,10 +35,30 @@ class old_Z(nn.Module):
         x = F.max_pool2d(self.relu(self.conv3(x)), 3)
         x = x.view(-1, 32 * 17 * 17)
 
-
         x = torch.tanh(self.fc1(x))
         x = torch.tanh(self.fc2(x))
         x = torch.tanh(self.fc3(x))
+        x = torch.tanh(self.fc4(x))
+        x = self.fc5(x)
+        return x
+
+
+class fc_Z(nn.Module):
+    def __init__(self, HP):
+        super(fc_Z, self).__init__()
+        self.HP = HP
+        self.fc1 = nn.Linear(126, 100)
+        self.fc2 = nn.Linear(100, 70)
+        self.fc3 = nn.Linear(70, 30)
+        self.fc4 = nn.Linear(30, 4)
+        self.fc5 = nn.Linear(4, 1)
+
+    def forward(self, x):
+        x = x.view(-1, 126)
+
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = F.relu(self.fc3(x))
         x = torch.tanh(self.fc4(x))
         x = self.fc5(x)
         return x

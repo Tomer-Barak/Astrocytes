@@ -86,13 +86,14 @@ def plot_representations(xs, e_net, t_net, epoch, HP, sixth_image):
     plt.show()
 
 
-def plot_average_anomaly():
+def plot_average_anomaly(hop=30, network=''):
 
-    hop = 20
+    if network == 'FC':
+        network = '_FC'
 
     plt.figure(figsize=(12, 4))
-    scores = np.load('results/anomaly_scores_hop'+str(hop)+'.npy')
-    mouse_positions = np.load('results/mouse_positions_hop'+str(hop)+'.npy')
+    scores = np.load('results/anomaly_scores'+network+'_hop'+str(hop)+'.npy')
+    mouse_positions = np.load('results/mouse_positions'+network+'_hop'+str(hop)+'.npy')
 
     scores_mean = np.nanmean(np.array(scores), axis=0)
     # scores = gaussian_filter1d(scores, 10)
@@ -111,18 +112,20 @@ def plot_average_anomaly():
     plt.xlabel('Frame count (hop='+str(hop)+')', fontsize=16)
     plt.xticks(fontsize=14)
     plt.legend()
+    plt.title(f'Anomaly_scores{network}_hop{hop}', fontsize=14)
     plt.tight_layout()
-    plt.savefig('Anomaly_scores_video_data_hop'+str(hop)+'.png', dpi=1000)
-    plt.show()
+    plt.savefig('figures/Anomaly_scores_video_data'+network+'_hop'+str(hop)+'.png', dpi=1000)
+    # plt.show()
 
 
-def plot_average_anomaly_polar():
+def plot_average_anomaly_polar(network='', hop=30):
     fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
 
-    hop = 20
+    if network == 'FC':
+        network = '_FC'
 
-    scores = np.load('results/anomaly_scores_hop'+str(hop)+'.npy')
-    mouse_positions = np.load('results/mouse_positions_hop'+str(hop)+'.npy')
+    scores = np.load('results/anomaly_scores'+network+'_hop'+str(hop)+'.npy')
+    mouse_positions = np.load('results/mouse_positions'+network+'_hop'+str(hop)+'.npy')
 
     scores_mean = np.mean(np.array(scores), axis=0)
 
@@ -147,11 +150,19 @@ def plot_average_anomaly_polar():
     # plt.xlabel('Frame count (hop=20)', fontsize=16)
     # plt.xticks(fontsize=14)
     # plt.legend()
+    plt.title(f'Anomaly_scores{network}_hop{hop}', fontsize=14)
     plt.tight_layout()
-    plt.savefig('Anomaly_scores_video_data_polar_hop'+str(hop)+'.png', dpi=1000)
-    plt.show()
+    plt.savefig('figures/Anomaly_scores_video_data_polar'+network+'_hop'+str(hop)+'.png', dpi=1000)
+    # plt.show()
 
 if __name__ == '__main__':
-    plot_average_anomaly()
-    # plot_average_anomaly_polar()
+    #
+    hops = [5,10,15,20,25,30]
+    nets = ['FC','']
+    for hop in hops:
+        for net in nets:
+            print(hop, net)
+            plot_average_anomaly_polar(hop=hop, network=net)
+            plot_average_anomaly(hop=hop, network=net)
+
     # plot_video(200, save_video=False, hop=20)

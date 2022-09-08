@@ -75,9 +75,9 @@ def generate_video_data(HP):
 def generate_features_data(HP):
     _, df_F, events_above_min, _, quad_data_norm, _ = load_data()
 
-    features = events_above_min
+    features = events_above_min[::HP['hop']]
 
-    mouse_position = quad_data_norm * 2 * np.pi
+    mouse_position = quad_data_norm[::HP['hop']] * 2 * np.pi
 
     return torch.from_numpy(features), torch.from_numpy(mouse_position)
 

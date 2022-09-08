@@ -155,14 +155,53 @@ def plot_average_anomaly_polar(network='', hop=30):
     plt.savefig('figures/Anomaly_scores_video_data_polar'+network+'_hop'+str(hop)+'.png')
     # plt.show()
 
-if __name__ == '__main__':
-    #
-    hops = [5,10,15,20,25,30]
-    nets = ['FC','']
+
+def mean_anomaly_score_vs_angle(net=''):
+    hops = [15, 20, 25, 30] # TODO: This choice matters.
+    if net == 'FC':
+        net = '_FC'
+    total_scores = []
+    total_positions = []
     for hop in hops:
-        for net in nets:
-            print(hop, net)
-            plot_average_anomaly_polar(hop=hop, network=net)
-            plot_average_anomaly(hop=hop, network=net)
+        scores = np.load('results/anomaly_scores' + net + '_hop' + str(hop) + '.npy')
+        scores_mean = np.mean(np.array(scores), axis=0)
+        total_scores += list(scores_mean)
+
+        mouse_positions = np.load('results/mouse_positions' + net + '_hop' + str(hop) + '.npy')
+        total_positions += list(mouse_positions)
+
+
+    total_scores = np.array(total_scores)
+    total_positions = np.array(total_positions)
+    total_positions[total_positions < 0] =  total_positions[total_positions < 0] + 2 * np.pi # TODO: This choice matters.
+
+    n_bins = 15 # TODO: This choice matters.
+    bins = np.arange(0,2*np.pi,2*np.pi/n_bins)
+    bined_positions = np.digitize(total_positions, bins)
+    bin_centers = bins+np.diff(np.concatenate((bins,np.array([2*np.pi]))))/2
+    mean_anomalies = np.zeros(len(bin_centers))
+    for i in range(len(bin_centers)):
+        mean_anomalies[i] = np.nanmean(total_scores[np.where(bined_positions == i+1)[0]])
+
+    fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
+    ax.plot(bin_centers, mean_anomalies,'.', ms=12)
+    ax.grid(True)
+    ax.set_rlim(0,np.max(mean_anomalies)+0.1*np.max(mean_anomalies))
+    plt.tight_layout()
+    plt.show()
+    pass
+
+if __name__ == '__main__':
+
+    mean_anomaly_score_vs_angle()
+
+
+    # hops = [5,10,15,20,25,30]
+    # nets = ['FC','']
+    # for hop in hops:
+    #     for net in nets:
+    #         print(hop, net)
+    #         plot_average_anomaly_polar(hop=hop, network=net)
+    #         plot_average_anomaly(hop=hop, network=net)
 
     # plot_video(200, save_video=False, hop=20)

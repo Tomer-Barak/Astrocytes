@@ -114,7 +114,7 @@ def plot_average_anomaly(hop=30, network=''):
     plt.legend()
     plt.title(f'Anomaly_scores{network}_hop{hop}', fontsize=14)
     plt.tight_layout()
-    plt.savefig('figures/Anomaly_scores_video_data'+network+'_hop'+str(hop)+'.png', dpi=1000)
+    plt.savefig('figures/Anomaly_scores_video_data'+network+'_hop'+str(hop)+'.png')
     # plt.show()
 
 
@@ -152,7 +152,7 @@ def plot_average_anomaly_polar(network='', hop=30):
     # plt.legend()
     plt.title(f'Anomaly_scores{network}_hop{hop}', fontsize=14)
     plt.tight_layout()
-    plt.savefig('figures/Anomaly_scores_video_data_polar'+network+'_hop'+str(hop)+'.png', dpi=1000)
+    plt.savefig('figures/Anomaly_scores_video_data_polar'+network+'_hop'+str(hop)+'.png')
     # plt.show()
 
 if __name__ == '__main__':
